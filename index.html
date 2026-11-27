@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f2937">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Leitor</title>
+<style>
+  body{margin:0;font-family:Georgia,serif;background:#faf6ee;color:#222}
+  header{position:sticky;top:0;background:#1f2937;color:#fff;padding:12px 16px;display:flex;gap:12px;align-items:center;font-family:system-ui,sans-serif}
+  header h1{font-size:18px;margin:0;flex:1}
+  button,label.btn{background:#fff;color:#1f2937;border:0;border-radius:8px;padding:8px 12px;font-size:14px}
+  #texto{max-width:42rem;margin:0 auto;padding:20px 18px 60px;font-size:20px;line-height:1.7;white-space:pre-wrap}
+  #status{font:12px system-ui;opacity:.7;text-align:center;padding:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📖 Leitor</h1>
+  <button id="menos">A-</button><button id="mais">A+</button>
+  <label class="btn">Abrir .txt<input id="arq" type="file" accept=".txt,text/plain" hidden></label>
+</header>
+<div id="status"></div>
+<div id="texto">Funcionou! 🎉
+
+Se você está lendo isto no celular, o PWA abriu.
+
+Toque em "Abrir .txt" para carregar um livro em texto simples. O texto fica salvo no aparelho e continua disponível offline.</div>
+
+<script>
+const t = document.getElementById('texto');
+let tam = +localStorage.tam || 20;
+const aplica = () => { t.style.fontSize = tam + 'px'; localStorage.tam = tam; };
+aplica();
+mais.onclick = () => { tam += 2; aplica(); };
+menos.onclick = () => { tam = Math.max(12, tam - 2); aplica(); };
+
+if (localStorage.livro) t.textContent = localStorage.livro;
+arq.onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const txt = await f.text();
+  t.textContent = txt;
+  try { localStorage.livro = txt; } catch { alert('Livro grande demais para salvar.'); }
+  scrollTo(0, 0);
+};
+
+const st = document.getElementById('status');
+st.textContent = matchMedia('(display-mode: standalone)').matches ? 'Rodando como app instalado' : 'Rodando no navegador';
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
